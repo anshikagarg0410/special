@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Our Special Place</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Custom scrollbar for better aesthetics if needed */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #fde2e4; /* A light pink to match the theme */
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #f7a8b8; /* A darker pink */
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #f08080; /* Rose color on hover */
+      }
+      body {
+        font-family: 'Georgia', serif; /* A more romantic font */
+        background: linear-gradient(135deg, #fff0f5 0%, #fde2e4 70%, #fbcfe8 100%); /* Lavender blush to light pink gradient */
+        min-height: 100vh;
+        overflow-x: hidden; /* Prevent horizontal scroll from 3D effects */
+      }
+
+      /* Global Animations */
+      @keyframes fadeInUpGlobal {
+        from {
+          opacity: 0;
+          transform: translateY(25px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fadeInUp-global {
+        animation: fadeInUpGlobal 0.6s ease-out forwards;
+      }
+
+      @keyframes popInGlobal {
+        0% { opacity: 0; transform: scale(0.8); }
+        80% { opacity: 1; transform: scale(1.05); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+      .animate-popIn-global {
+        animation: popInGlobal 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+       /* Add a general heart pulse animation that can be applied where needed */
+      @keyframes heartPulseGlobal {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+        100% { transform: scale(1); }
+      }
+      .animate-heartPulse-global {
+        animation: heartPulseGlobal 1.5s ease-in-out infinite;
+      }
+
+      /* For AnimatedText component with stagger */
+      @keyframes fadeInChar {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      /* Class to apply to characters when stagger is true, animation is set inline via style prop */
+      .animated-char-stagger-initial {
+        display: inline-block; /* Ensures transform applies if not already */
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      /* New animations for HomePage hero enhancement */
+      @keyframes heartBeatSoft {
+        0%, 100% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.08); opacity: 0.9; }
+      }
+      .animate-heartBeatSoft { animation: heartBeatSoft 3s ease-in-out infinite; }
+
+      @keyframes twinkle {
+        0%, 100% { opacity: 0.5; transform: scale(0.95); }
+        50% { opacity: 0.9; transform: scale(1.05); }
+      }
+      .animate-twinkle { animation: twinkle 3.5s ease-in-out infinite; }
+
+      @keyframes wiggleSmall {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(-6deg) scale(1.1); }
+        75% { transform: rotate(6deg) scale(1.1); }
+      }
+      /* Applied via group-hover:animate-wiggleSmall */
+      .group:hover .group-hover\\:animate-wiggleSmall {
+        animation: wiggleSmall 0.6s ease-in-out;
+      }
+      
+      @keyframes slowFloat {
+        0% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0; }
+        25% { opacity: 0.05; }
+        50% { transform: translateY(-15px) translateX(5px) rotate(5deg); opacity: 0.1; }
+        75% { opacity: 0.05; }
+        100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0; }
+      }
+      .animate-slowFloat { animation: slowFloat 15s ease-in-out infinite; }
+
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.6.2"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
