@@ -1,15 +1,16 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { HeartIcon } from './Icons';
+import { useAuth } from '../contexts/AuthContext';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
+  const { isAuthenticated, logout } = useAuth();
 
-  const navLinkClasses = (path: string) => 
+  const navLinkClasses = (path: string) =>
     `px-3 py-2 sm:px-4 rounded-md text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-opacity-75 ${
-      location.pathname === path 
-        ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md' 
+      location.pathname === path
+        ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md'
         : 'text-rose-700 hover:bg-rose-200/70 hover:text-rose-900'
     }`;
 
@@ -25,12 +26,20 @@ const Navbar: React.FC = () => {
           </Link>
           <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
             <Link to="/" className={navLinkClasses('/')}>Home</Link>
-            <Link to="/gallery" className={navLinkClasses('/gallery')}>Gallery</Link>
-            <Link to="/notes" className={navLinkClasses('/notes')}>Notes</Link>
-            <Link to="/proposal" className={`${navLinkClasses('/proposal')} bg-pink-400 text-white hover:bg-pink-500`}>
-              <span className="hidden sm:inline">Special Letter</span>
-              <span className="sm:hidden">Letter</span>
-            </Link>
+            {isAuthenticated && (
+              <>
+                <Link to="/gallery" className={navLinkClasses('/gallery')}>Gallery</Link>
+                <Link to="/notes" className={navLinkClasses('/notes')}>Notes</Link>
+                <Link to="/proposal" className={`${navLinkClasses('/proposal')} bg-pink-400 text-white hover:bg-pink-500`}>
+                  <span className="hidden sm:inline">Special Letter</span>
+                  <span className="sm:hidden">Letter</span>
+                </Link>
+                <button onClick={logout} className={navLinkClasses('/logout')}>Logout</button>
+              </>
+            )}
+            {!isAuthenticated && (
+              <Link to="/login" className={navLinkClasses('/login')}>Login</Link>
+            )}
           </div>
         </div>
       </div>
