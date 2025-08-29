@@ -18,7 +18,7 @@ const HomePage: React.FC = () => {
         
         <div className="relative p-1.5 rounded-[calc(1.25rem+6px)] bg-gradient-to-br from-pink-300 via-rose-200 to-purple-300 shadow-xl group-hover:shadow-pink-400/60 transition-all duration-300 transform group-hover:scale-103" style={{ borderRadius: '50%' }}>
           <img 
-            src="/lovers-wall.png" // Ensure this path is correct
+            src="/special/lovers-wall.png" // Ensure this path is correct
             alt="A photo of us, happy and in love" 
             className="rounded-3xl w-48 h-48 sm:w-56 sm:h-56 object-cover border-4 border-white/80 transform group-hover:scale-[1.02] transition-transform duration-500"
             style={{borderRadius: '50%'}}
