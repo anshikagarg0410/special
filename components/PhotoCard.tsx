@@ -5,7 +5,7 @@ import { TrashIcon } from './Icons';
 interface PhotoCardProps {
   photo: Photo;
   onClick: () => void;
-  onDelete: (e: React.MouseEvent) => void; // NEW
+  onDelete: () => void; // This line is changed
 }
 
 const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, onDelete }) => {
@@ -29,7 +29,7 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, onDelete }) => {
       )}
       <div className="absolute top-2 right-2 flex flex-row space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <button
-          onClick={(e) => { e.stopPropagation(); onDelete(e); }}
+          onClick={(e) => { e.stopPropagation(); onDelete(); }} // This line is changed
           className="bg-rose-500 text-white p-1 rounded-full shadow-md hover:bg-rose-700 transition w-7 h-7 flex items-center justify-center"
           title="Delete Photo"
         >
