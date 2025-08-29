@@ -1,38 +1,61 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { 
+  Auth,
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged, 
+  User
+} from 'firebase/auth';
+import { auth } from '../firebase'; // Import auth from your firebase.ts
 
 interface AuthContextType {
+  currentUser: User | null;
   isAuthenticated: boolean;
-  login: (user: string, pass: string) => boolean;
+  login: (email: string, pass: string) => Promise<boolean>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Hardcoded user credentials
-const users = [
-  { email: 'garganshika0410@gmail.com', password: 'devanuu' },
-  { email: 'user2@example.com', password: 'devanuu' },
-];
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true); // To check auth status on page load
 
-  const login = (email: string, pass: string) => {
-    const user = users.find((u) => u.email === email && u.password === pass);
-    if (user) {
-      setIsAuthenticated(true);
+  const login = async (email: string, pass: string) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
       return true;
+    } catch (error) {
+      console.error("Firebase login failed:", error);
+      return false;
     }
-    return false;
   };
 
   const logout = () => {
-    setIsAuthenticated(false);
+    return signOut(auth);
   };
 
+  useEffect(() => {
+    // This is the key part: it listens for changes in Firebase's auth state
+    const unsubscribe = onAuthStateChanged(auth, user => {
+      setCurrentUser(user);
+      setLoading(false); // Auth status is now known
+    });
+
+    return unsubscribe; // Cleanup subscription on unmount
+  }, []);
+
+  const value = {
+    currentUser,
+    isAuthenticated: !!currentUser, // isAuthenticated is true if currentUser is not null
+    login,
+    logout
+  };
+
+  // Don't render the app until we know if the user is logged in or not
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

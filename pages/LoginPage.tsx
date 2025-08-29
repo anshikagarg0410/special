@@ -11,12 +11,18 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  // This function is now async to handle the Firebase login
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (login(email, password)) {
+    setError(''); // Clear previous errors
+    
+    // Await the login result from the AuthContext
+    const success = await login(email, password); 
+    
+    if (success) {
       navigate('/');
     } else {
-      setError('Invalid email or password');
+      setError('Login failed. Please check your email and password.');
     }
   };
 
