@@ -7,7 +7,7 @@ import { HeartIcon, PencilIcon } from '../components/Icons';
 
 // --- Firebase Imports ---
 import { db } from '../firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
 
 const NotesPage: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -17,18 +17,21 @@ const NotesPage: React.FC = () => {
   const [currentTitle, setCurrentTitle] = useState('');
   const [editingNote, setEditingNote] = useState<Note | null>(null);
 
-  // --- 1. Fetch Notes from Firebase ---
+  // --- 1. Fetch Notes from Firebase with real-time updates ---
   useEffect(() => {
-    const fetchNotes = async () => {
-      const notesQuery = query(collection(db, "notes"), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(notesQuery);
+    const notesQuery = query(collection(db, "notes"), orderBy("createdAt", "desc"));
+    
+    // onSnapshot will listen for real-time updates
+    const unsubscribe = onSnapshot(notesQuery, (querySnapshot) => {
       const notesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Note[];
       setNotes(notesData);
-    };
-    fetchNotes();
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []); // This runs only once when the component loads
 
   const openAddModal = () => {
@@ -64,7 +67,7 @@ const NotesPage: React.FC = () => {
         date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + ' (Edited)'
       };
       await updateDoc(noteRef, updatedData);
-      setNotes(notes.map(note => note.id === editingNote.id ? { ...note, ...updatedData } : note));
+      // No need to manually update state, onSnapshot will do it
     } else {
       // Add a new note to Firestore
       const newNoteData = {
@@ -74,8 +77,8 @@ const NotesPage: React.FC = () => {
         date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
         createdAt: serverTimestamp()
       };
-      const docRef = await addDoc(collection(db, "notes"), newNoteData);
-      setNotes(prevNotes => [{ id: docRef.id, ...newNoteData }, ...prevNotes]);
+      await addDoc(collection(db, "notes"), newNoteData);
+      // No need to manually update state, onSnapshot will do it
     }
 
     setIsModalOpen(false);
@@ -86,7 +89,7 @@ const NotesPage: React.FC = () => {
   const handleDeleteNote = async (noteId: string) => {
     if (window.confirm("Are you sure you want to delete this sweet note?")) {
       await deleteDoc(doc(db, "notes", noteId));
-      setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
+      // No need to manually update state, onSnapshot will do it
     }
   };
   

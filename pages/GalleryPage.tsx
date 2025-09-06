@@ -7,7 +7,7 @@ import { HeartIcon, PencilIcon, TrashIcon, PlusIcon, UploadIcon } from '../compo
 
 // --- Firebase Imports ---
 import { db, storage } from '../firebase';
-import { collection, getDocs, addDoc, deleteDoc, doc, query, orderBy, serverTimestamp, updateDoc } from "firebase/firestore";
+import { collection, onSnapshot, addDoc, deleteDoc, doc, query, orderBy, serverTimestamp, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
 const GalleryPage: React.FC = () => {
@@ -26,19 +26,21 @@ const GalleryPage: React.FC = () => {
 
   const captionInputRef = useRef<HTMLInputElement>(null);
 
-  // --- 1. Fetch Photos from Firebase ---
+  // --- 1. Fetch Photos from Firebase with real-time updates ---
   useEffect(() => {
-    const fetchPhotos = async () => {
-      const photosQuery = query(collection(db, "photos"), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(photosQuery);
+    const photosQuery = query(collection(db, "photos"), orderBy("createdAt", "desc"));
+    
+    // onSnapshot will listen for real-time updates
+    const unsubscribe = onSnapshot(photosQuery, (querySnapshot) => {
       const photosData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Photo[];
       setPhotos(photosData);
-    };
+    });
 
-    fetchPhotos().catch(console.error);
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   const openDetailModal = useCallback((photoToOpen: Photo) => {
@@ -101,10 +103,8 @@ const GalleryPage: React.FC = () => {
         createdAt: serverTimestamp()
       };
 
-      const docRef = await addDoc(collection(db, "photos"), newPhotoData);
-      
-      // Update state to show new photo immediately
-      setPhotos(prevPhotos => [{ id: docRef.id, ...newPhotoData, comments: [] }, ...prevPhotos]);
+      await addDoc(collection(db, "photos"), newPhotoData);
+      // No need to manually update state, onSnapshot will do it
 
     } catch (error) {
       console.error("Error adding photo:", error);
@@ -124,7 +124,7 @@ const GalleryPage: React.FC = () => {
         await deleteDoc(doc(db, "photos", photoId));
         const imageRef = ref(storage, photoSrc);
         await deleteObject(imageRef);
-        setPhotos(photos.filter(photo => photo.id !== photoId));
+        // No need to manually update state, onSnapshot will do it
         if (selectedPhoto && selectedPhoto.id === photoId) {
           closeModal();
         }
@@ -149,9 +149,8 @@ const GalleryPage: React.FC = () => {
     const updatedComments = [...(selectedPhoto.comments || []), newCommentObj];
     const photoRef = doc(db, "photos", selectedPhoto.id);
     await updateDoc(photoRef, { comments: updatedComments });
-
-    const updatedPhotos = photos.map(p => p.id === selectedPhoto.id ? { ...p, comments: updatedComments } : p);
-    setPhotos(updatedPhotos);
+    // onSnapshot will handle the state update for the photos array
+    // but we need to update the selectedPhoto to see the comment immediately in the modal
     setSelectedPhoto({ ...selectedPhoto, comments: updatedComments });
     setNewCommentText('');
     setNewCommentAuthor('');
